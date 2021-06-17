@@ -10,7 +10,8 @@ FPS = pygame.time.Clock()
 BASE_SPEED = 7
 BASE_HEALTH = 300
 GREEN = (0, 255, 0)
-RED = (255, 50, 50)
+RED = (255, 0, 0)
+RED_OVERLAY = (255, 50, 50)
 BG = pygame.image.load(os.path.join('Assets','GrassField.png')).convert()
 FONT = pygame.font.SysFont('Arial', 60)
 
@@ -60,11 +61,6 @@ class Hero(Character):
         self.y_speed = BASE_SPEED
         self.health = BASE_HEALTH
 
-    def update_health(self):
-        pygame.draw.rect(DISPLAY, GREEN, (20, 20, self.health, 20))
-        if self.health < BASE_HEALTH:
-            pygame.draw.rect(DISPLAY, (255,0,0), (self.health + 20, 20, BASE_HEALTH - self.health, 20))
-
     def move(self):
         pressed_keys = pygame.key.get_pressed()
         if self.rect.left > 0 and pressed_keys[K_LEFT]:
@@ -95,41 +91,43 @@ def draw_window(display, background, hero, zombies):
     #Draw the main background
     display.blit(background, (0,0))
 
-    #Draw all the enemy sprites and move them
+    #Draw zombies
     for character in zombies:
         current_zomb_sprite = character.walk_anim[character.step_count//15]
         if character.direction == -1:
             current_zomb_sprite = pygame.transform.flip(current_zomb_sprite, True, False)
         display.blit(current_zomb_sprite, character.rect)
-        character.move()
+
     #Check for collision:
     if pygame.sprite.spritecollideany(hero, zombies):
         hero.health -= 1
         current_hero_sprite = hero.hurt
-        display.fill(RED, special_flags=BLEND_MULT)
+        display.fill(RED_OVERLAY, special_flags=BLEND_MULT)
     else:
         current_hero_sprite = hero.walk_anim[hero.step_count//15]
-    #Draw hero sprite and move
-    if hero.direction == 0:
+
+    #Draw hero
+    if hero.direction == 0: #Hero is facing left
         current_hero_sprite = pygame.transform.flip(current_hero_sprite, True, False)
     display.blit(current_hero_sprite, hero.rect)
-    hero.move()
-    #Check health
-    hero.update_health()
-    if hero.health <= 0:
-        game_over()
+
+    #Draw Health
+    pygame.draw.rect(display, GREEN, (20, 20, hero.health, 20))
+    pygame.draw.rect(display, RED, (hero.health + 20, 20, BASE_HEALTH - hero.health, 20))
+
     #Draw current score
     score_text = FONT.render(f"TIME SURVIVED: {score//60}", True, (200,200,200))
     display.blit(score_text, (WIDTH/2, 20))
     # display.fill((255,100,100),special_flags=pygame.BLEND_MULT)
     pygame.display.update()
-    FPS.tick(60)
 
 #On lose
 def game_over():
+    #Text to render
     game_over_text = FONT.render(f"GAME OVER", True, (200,200,200))
     score_text = FONT.render(f"SURVIVED FOR {score//60} SECONDS", True, (200,200,200))
     zombie_count_text = FONT.render(f"ZOMBIE COUNT: {zombie_count}", True, (200,200,200))
+    #Drawing elements
     DISPLAY.fill((0, 0, 0))
     DISPLAY.blit(game_over_text, (WIDTH/2 - (game_over_text.get_width()/2), HEIGHT/2 - game_over_text.get_height()/2))
     DISPLAY.blit(score_text, (WIDTH/2 - (score_text.get_width()/2), (HEIGHT/2 + score_text.get_height() * 1.5)))
@@ -139,6 +137,7 @@ def game_over():
         character.kill()
     
     pygame.display.update()
+    FPS.tick(60)
     time.sleep(5)
     pygame.quit()
     sys.exit()
@@ -160,7 +159,6 @@ all_sprites.add(zombies, hero)
 
 # Game Loop
 while True:
-
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
@@ -170,6 +168,14 @@ while True:
             zombies.add(new_zombie)
             all_sprites.add(new_zombie)
             zombie_count += 1
+
+    if hero.health <= 0:
+        game_over()
     score += 1
     draw_window(DISPLAY, BG, hero, zombies)
+    for character in all_sprites:
+        character.move()
+    FPS.tick(60)
+
+
     
