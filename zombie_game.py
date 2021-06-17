@@ -15,9 +15,7 @@ RED_OVERLAY = (255, 50, 50)
 BG = pygame.image.load(os.path.join('Assets','GrassField.png')).convert()
 FONT = pygame.font.SysFont('Arial', 60)
 
-score = 0
-
-# Classes
+# =====CHARACTER CLASSES=====
 class Character(pygame.sprite.Sprite):
     def __init__(self, type):
         super().__init__()
@@ -47,6 +45,7 @@ class Zombie(Character):
         if (self.rect.right > WIDTH) or (self.rect.left < 0):
             self.x_speed *= -1
             self.direction *= -1
+
         if (self.rect.bottom > HEIGHT) or (self.rect.top < 0):
             self.y_speed *= -1
 
@@ -63,24 +62,29 @@ class Hero(Character):
 
     def move(self):
         pressed_keys = pygame.key.get_pressed()
+
         if self.rect.left > 0 and pressed_keys[K_LEFT]:
             if self.direction == 1:
                 self.step_count = 0
             self.direction = 0
             self.step_count += 1
             self.rect.move_ip(-BASE_SPEED, 0)
+
         if self.rect.right < WIDTH and pressed_keys[K_RIGHT]:
             if self.direction == 0:
                 self.step_count = 0
             self.direction = 1
             self.step_count += 1
             self.rect.move_ip(BASE_SPEED, 0)
+
         if self.rect.top > 0 and pressed_keys[K_UP]:
             self.rect.move_ip(0, -BASE_SPEED)
             self.step_count += 1
+
         if self.rect.bottom < HEIGHT and pressed_keys[K_DOWN]:
             self.rect.move_ip(0, BASE_SPEED)
             self.step_count += 1
+
         if self.step_count >= 59:
             self.step_count = 0
 
@@ -118,7 +122,7 @@ def draw_window(display, background, hero, zombies):
     #Draw current score
     score_text = FONT.render(f"TIME SURVIVED: {score//60}", True, (200,200,200))
     display.blit(score_text, (WIDTH/2, 20))
-    # display.fill((255,100,100),special_flags=pygame.BLEND_MULT)
+
     pygame.display.update()
 
 #On lose
@@ -137,25 +141,25 @@ def game_over():
         character.kill()
     
     pygame.display.update()
-    FPS.tick(60)
     time.sleep(5)
     pygame.quit()
     sys.exit()
 
+# ===INITIALIZE===
+
 # User Events
 SPAWN_ENEMY = pygame.USEREVENT + 1
 pygame.time.set_timer(SPAWN_ENEMY, 7000)
-
-# Initialize Sprites
+#Sprites
 hero = Hero()
 zombie = Zombie()
 zombie_count = 1
-
-# Sprite Groups
 zombies = pygame.sprite.Group()
 zombies.add(zombie)
 all_sprites = pygame.sprite.Group()
 all_sprites.add(zombies, hero)
+
+score = 0
 
 # Game Loop
 while True:
@@ -171,10 +175,14 @@ while True:
 
     if hero.health <= 0:
         game_over()
+
     score += 1
+
     draw_window(DISPLAY, BG, hero, zombies)
+
     for character in all_sprites:
         character.move()
+        
     FPS.tick(60)
 
 
