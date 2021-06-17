@@ -1,5 +1,5 @@
 import pygame, sys, os, random, time
-from pygame.locals import *
+from pygame.locals import * #Gives access to constants, etc
 
 pygame.init()
 
