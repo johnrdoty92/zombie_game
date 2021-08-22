@@ -26,7 +26,7 @@ class Character(pygame.sprite.Sprite):
             pygame.image.load(os.path.join("Assets", type, f"{type}_R_Step.png")).convert_alpha(),
         ]
         self.surface = pygame.Surface((100,150))
-        self.direction = 1 #1 is 'right', -1 is 'left'
+        self.direction = 1 #1 is 'right', 0 is 'left'
         self.step_count = 0
 
 class Zombie(Character):
@@ -182,7 +182,7 @@ while True:
 
     for character in all_sprites:
         character.move()
-        
+
     FPS.tick(60)
 
 
