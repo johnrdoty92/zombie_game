@@ -8,7 +8,7 @@ SIZE = WIDTH, HEIGHT = (1000, 600)
 DISPLAY = pygame.display.set_mode(SIZE)
 FPS = pygame.time.Clock()
 BASE_SPEED = 7
-BASE_HEALTH = 300
+BASE_HEALTH = 150
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 RED_OVERLAY = (255, 50, 50)
@@ -149,7 +149,7 @@ def game_over():
 
 # User Events
 SPAWN_ENEMY = pygame.USEREVENT + 1
-pygame.time.set_timer(SPAWN_ENEMY, 7000)
+pygame.time.set_timer(SPAWN_ENEMY, 3000)
 #Sprites
 hero = Hero()
 zombie = Zombie()
